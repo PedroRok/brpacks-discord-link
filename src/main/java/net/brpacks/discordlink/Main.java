@@ -1,6 +1,7 @@
 package net.brpacks.discordlink;
 
 import lombok.Getter;
+import net.brpacks.discordlink.commands.LinkCommand;
 import net.brpacks.discordlink.config.MainConfig;
 import net.brpacks.discordlink.jda.Bot;
 import org.apache.log4j.Logger;
@@ -23,7 +24,7 @@ public final class Main extends JavaPlugin {
         Bot bot = new Bot();
         bot.login();
 
-
+        getServer().getPluginCommand("vincular").setExecutor(new LinkCommand());
     }
 
     @Override

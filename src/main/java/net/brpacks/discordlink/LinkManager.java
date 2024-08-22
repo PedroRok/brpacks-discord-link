@@ -1,5 +1,7 @@
 package net.brpacks.discordlink;
 
+import net.brpacks.core.common.utils.Cooldown;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -13,7 +15,7 @@ public class LinkManager {
 
     private static LinkManager instance;
 
-    private Map<UUID, Long> pendingLinks;
+    private Map<Long, UUID> pendingLinks;
 
     private Random random;
 
@@ -23,20 +25,23 @@ public class LinkManager {
     }
 
     public boolean isPending(UUID uuid) {
-        return pendingLinks.containsKey(uuid);
+        return Cooldown.isInCooldown(uuid, "discord-link");
     }
 
-    public void addPending(UUID uuid) {
-        pendingLinks.put(uuid, random.nextLong(10000, 99999));
+    public long addPending(UUID uuid) {
+        long key = random.nextLong(10000, 99999);
+        pendingLinks.put(key, uuid);
+        Cooldown.setCooldownSec(uuid, 60 * 5L, "discord-link");
+        return key;
     }
 
     public UUID getUUID(long code) {
-        return pendingLinks.entrySet().stream().filter(entry -> entry.getValue() == code).map(Map.Entry::getKey).findFirst().orElse(null);
+        return pendingLinks.get(code);
     }
 
     private long generateCode() {
         long l = random.nextLong(10000, 99999);
-        if (pendingLinks.containsValue(l)) {
+        if (pendingLinks.containsKey(l)) {
             return generateCode();
         }
         return l;

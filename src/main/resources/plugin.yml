@@ -2,5 +2,9 @@ name: BrPacksDiscordLink
 version: '1.0'
 main: net.brpacks.discordlink.Main
 api-version: '1.21'
-authors: [ Rok ]
-website: pedrorok.com
+authors: [ Rok, Sudano ]
+website: brpacks.net
+commands:
+  vincular:
+    aliases: [ "sync" ]
+
