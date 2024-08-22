@@ -2,6 +2,7 @@ package net.brpacks.discordlink;
 
 import lombok.Getter;
 import net.brpacks.discordlink.config.MainConfig;
+import net.brpacks.discordlink.jda.Bot;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -15,6 +16,9 @@ public final class Main extends JavaPlugin {
         instance = this;
         mainConfig = new MainConfig(this);
         mainConfig.init();
+
+        Bot bot = new Bot();
+        bot.login();
 
 
     }
