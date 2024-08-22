@@ -5,10 +5,10 @@ import net.brpacks.discordlink.config.MainConfig;
 import net.brpacks.discordlink.jda.Bot;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public final class Main extends JavaPlugin {
 
     private static Main instance;
-    @Getter
     private MainConfig mainConfig;
 
     @Override
