@@ -1,10 +1,8 @@
 package net.brpacks.discordlink.config;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.brpacks.core.common.utils.XConfig;
 import net.brpacks.discordlink.Main;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Rok, Pedro Lucas nmm. Created on 22/08/2024
@@ -15,6 +13,7 @@ public class MainConfig extends XConfig {
 
     private String token;
     private long chatId;
+    private long verifiedRoleId;
     public MainConfig(Main main) {
         super("config.yml", main);
     }
@@ -23,6 +22,7 @@ public class MainConfig extends XConfig {
     public void init() {
         token = config.getString("discord.token");
         chatId = config.getLong("discord.sync-channel");
+        verifiedRoleId = config.getLong("discord.sync-role-id");
     }
 
     @Override

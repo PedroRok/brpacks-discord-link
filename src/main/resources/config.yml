@@ -1,3 +1,4 @@
 discord:
   sync-channel: 0
+  sync-role-id: 0
   token: ""
