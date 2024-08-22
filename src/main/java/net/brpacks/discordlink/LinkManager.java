@@ -1,6 +1,7 @@
 package net.brpacks.discordlink;
 
 import net.brpacks.core.common.utils.Cooldown;
+import net.brpacks.discordlink.data.LinkDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +20,12 @@ public class LinkManager {
 
     private Random random;
 
+    private final LinkDatabase linkDatabase;
+
     public LinkManager() {
         this.pendingLinks = new HashMap<>();
         random = new Random();
+        linkDatabase = new LinkDatabase();
     }
 
     public boolean isPending(UUID uuid) {
@@ -29,7 +33,7 @@ public class LinkManager {
     }
 
     public long addPending(UUID uuid) {
-        long key = random.nextLong(10000, 99999);
+        long key = generateCode();
         pendingLinks.put(key, uuid);
         Cooldown.setCooldownSec(uuid, 60 * 5L, "discord-link");
         return key;
@@ -39,12 +43,26 @@ public class LinkManager {
         return pendingLinks.get(code);
     }
 
+    public void confirmSync(UUID uuid, long userId, long code) {
+        pendingLinks.remove(code);
+        Cooldown.removeCooldown(uuid, "discord-link");
+        linkDatabase.savePlayer(uuid, userId);
+    }
+
     private long generateCode() {
         long l = random.nextLong(10000, 99999);
         if (pendingLinks.containsKey(l)) {
             return generateCode();
         }
         return l;
+    }
+
+    private boolean isLinked(UUID uuid) {
+        return linkDatabase.isPlayerSync(uuid);
+    }
+
+    private boolean isClientLinked(long clientId) {
+        return linkDatabase.isClientSync(clientId);
     }
 
     public static LinkManager get() {

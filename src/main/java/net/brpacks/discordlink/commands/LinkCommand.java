@@ -30,7 +30,7 @@ public class LinkCommand extends CommandManager {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/brpacks"))
                         .hoverEvent(StringUtils.formatString("<gradient:#54cffe:#ccf9ff>Clique para abrir o discord")))
                 .append(StringUtils.formatString("\n<blue>Para vincular sua conta, siga os passos abaixo:" +
-                                                 "\n<#54cffe> 1 <blue>- <gray>Na sala <gradient:#54cffe:#ccf9ff>" +
+                                                 "\n<#54cffe> 1 <blue>- <gray>No canal <gradient:#54cffe:#ccf9ff>" +
                                                  channelName
                                                  + "</gradient><gray>, digite <gradient:#54cffe:#ccf9ff>\"/vincular\"</gradient>\n" +
                                                  "<#8ee0fb> 2 <blue>- <gray>Seu código é: "));
@@ -40,10 +40,10 @@ public class LinkCommand extends CommandManager {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        if (sender instanceof Player p) {
+        if (sender instanceof Player p && (args.length == 0 || !sender.hasPermission("brpacks.mod"))) {
             if (LinkManager.get().isPending(p.getUniqueId())) {
-                p.sendMessage(StringUtils.formatString("<gray>[<red>!<gray>] <red>Você já possui um código pendente!"));
-                //return true;
+                p.sendMessage(StringUtils.formatString("<gray>[<red>!<gray>] <red>Você já possui um código pendente! <gray>Por favor, aguarde 5 minutos."));
+                return true;
             }
             long key = LinkManager.get().addPending(p.getUniqueId());
             Component code = StringUtils.formatString("<gradient:#54cffe:#ccf9ff><u>" + key + "</gradient>")

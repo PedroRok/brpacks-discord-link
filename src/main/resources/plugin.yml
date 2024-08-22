@@ -4,6 +4,8 @@ main: net.brpacks.discordlink.Main
 api-version: '1.21'
 authors: [ Rok, Sudano ]
 website: brpacks.net
+depend:
+  - BrPacksCore
 commands:
   vincular:
     aliases: [ "sync" ]
