@@ -14,7 +14,6 @@ public final class Main extends JavaPlugin {
     private static Main instance;
     private MainConfig mainConfig;
 
-
     @Override
     public void onEnable() {
         instance = this;
