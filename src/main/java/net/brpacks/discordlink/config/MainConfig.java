@@ -22,7 +22,7 @@ public class MainConfig extends XConfig {
     @Override
     public void init() {
         token = config.getString("discord.token");
-        chatId = config.getLong("discord.chat_id");
+        chatId = config.getLong("discord.sync-channel");
     }
 
     @Override
