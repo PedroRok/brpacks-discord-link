@@ -4,7 +4,13 @@ import lombok.Getter;
 import net.brpacks.core.common.utils.Cooldown;
 import net.brpacks.core.common.utils.StringUtils;
 import net.brpacks.core.common.utils.Tuple;
-import net.brpacks.discordlink.data.LinkDatabase;
+import net.brpacks.discordlink.config.RolesConfig;
+import net.brpacks.discordlink.jda.Bot;
+import net.dv8tion.jda.api.entities.Member;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.Node;
+import net.luckperms.api.node.NodeEqualityPredicate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -20,18 +26,23 @@ import java.util.UUID;
 public class LinkManager {
 
     private static LinkManager instance;
-
-    private Map<Long, Tuple<UUID, String>> pendingLinks;
-
+    private final Map<Long, Tuple<UUID, String>> pendingLinks;
     private final Random random;
+    private final LuckPerms luckPerms;
 
     @Getter
     private final LinkDatabase database;
+    @Getter
+    private final RolesConfig rolesConfig;
+
 
     public LinkManager() {
         this.pendingLinks = new HashMap<>();
         random = new Random();
         database = new LinkDatabase();
+        luckPerms = Main.get().getLuckPerms();
+        rolesConfig = new RolesConfig();
+        rolesConfig.init();
     }
 
     public boolean isPending(UUID uuid) {
@@ -55,24 +66,60 @@ public class LinkManager {
         database.savePlayer(uuid, remove.two(), userId);
 
         Player player = Bukkit.getPlayer(uuid);
+        syncRoles(uuid);
         if (player == null) return;
         player.sendMessage(StringUtils.text("<confirm>Conta vinculada com sucesso!"));
     }
 
     private long generateCode() {
-        long l = random.nextLong(10000, 99999);
-        if (pendingLinks.containsKey(l)) {
-            return generateCode();
-        }
+        long l;
+        do {
+            l = random.nextLong(10000, 99999);
+        } while (pendingLinks.containsKey(l));
         return l;
     }
 
-    private boolean isLinked(UUID uuid) {
+    public boolean isLinked(UUID uuid) {
         return database.isPlayerSync(uuid);
     }
 
-    private boolean isClientLinked(long clientId) {
+    public boolean isClientLinked(long clientId) {
         return database.isClientSync(clientId);
+    }
+
+    public void syncRoles(UUID uuid) {
+        long discordByPlayer = database.getDiscordByPlayer(uuid);
+        if (discordByPlayer <= 0) return;
+        Bot bot = Main.get().getBot();
+
+        User user = luckPerms.getUserManager().getUser(uuid);
+        if (user == null) return;
+        String primaryGroup = user.getPrimaryGroup();
+
+        for (Map.Entry<String, Long> entry : rolesConfig.getGroupToRoles().entrySet()) {
+            bot.modifyPlayerRole(discordByPlayer, entry.getValue(), primaryGroup.equals(entry.getKey()));
+        }
+
+        bot.getMemberById(discordByPlayer, member -> {
+            boolean hasRole = member.getRoles().stream().anyMatch(role -> role.getIdLong() == rolesConfig.getBoosterRole());
+            modifyBoosterRole(user, hasRole);
+        });
+    }
+
+
+    public void modifyBoosterRole(User user, boolean hasRole) {
+        boolean hasPermission = user.data().contains(Node.builder(rolesConfig.getBoosterPermissions().getFirst()).build(), NodeEqualityPredicate.IGNORE_VALUE).asBoolean();
+        if (hasRole && !hasPermission) {
+            for (String permission : rolesConfig.getBoosterPermissions()) {
+                user.data().add(Node.builder(permission).build());
+            }
+            luckPerms.getUserManager().saveUser(user);
+        } else if (!hasRole && hasPermission) {
+            for (String permission : rolesConfig.getBoosterPermissions()) {
+                user.data().remove(Node.builder(permission).build());
+            }
+            luckPerms.getUserManager().saveUser(user);
+        }
     }
 
     public static LinkManager get() {

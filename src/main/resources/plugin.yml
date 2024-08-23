@@ -6,6 +6,7 @@ authors: [ Rok, Sudano ]
 website: brpacks.net
 depend:
   - BrPacksCore
+  - LuckPerms
 commands:
   vincular:
     aliases: [ "sync" ]

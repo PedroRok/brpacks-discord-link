@@ -2,3 +2,5 @@ discord:
   sync-channel: 0
   sync-role-id: 0
   token: ""
+  invite-link: "https://dc.brpacks.com/"
+  guild-id: 1260710043381141576

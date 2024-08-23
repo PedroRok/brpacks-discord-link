@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Rok, Pedro Lucas nmm. Created on 23/08/2024
@@ -32,10 +31,12 @@ public class InfoCmd extends SubCommand {
             return true;
         }
 
-        sendMsg(commandSender, "<info><gradient:#54cffe:#ccf9ff>Informações do jogador");
-        sendMsg(commandSender, "<info>Jogador: <gray>" + playerName);
-        sendMsg(commandSender, "<info>Discord: <gray>" + Main.get().getBot().getUserName(discordId));
-        sendMsg(commandSender, "<info>Discord ID: <gray>" + discordId);
+        Main.get().getBot().getMemberById(discordId, member -> {
+            sendMsg(commandSender, "<info><gradient:#54cffe:#ccf9ff>Informações do jogador");
+            sendMsg(commandSender, "<info>Jogador: <gray>" + playerName);
+            sendMsg(commandSender, "<info>Discord: <gray>" + member.getNickname() + " (" + member.getUser().getAsTag() + ")");
+            sendMsg(commandSender, "<info>Discord ID: <gray>" + discordId);
+        });
         return true;
     }
 

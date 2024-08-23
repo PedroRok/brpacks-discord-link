@@ -14,45 +14,39 @@ import java.util.List;
  * @author Rok, Pedro Lucas nmm. Created on 23/08/2024
  * @project BrPacksDiscordLink
  */
-public class RemoverCmd extends SubCommand {
-    public RemoverCmd(CommandManager commandManager) {
+public class UpdateCmd extends SubCommand {
+    public UpdateCmd(CommandManager commandManager) {
         super(commandManager);
     }
 
     @Override
     protected boolean onCommand(CommandSender commandSender, String[] strings) {
-        if (strings.length < 1) return false;
-
-        String playerName = strings[0];
-        // Remove vinculação
-        long discordId = LinkManager.get().getDatabase().getDiscordByPlayer(playerName);
-        if (discordId <= 0) {
-            sendMsg(commandSender, "<error>Jogador não vinculado!");
-            return true;
-        }
-        LinkManager.get().getDatabase().removeSync(discordId);
-        Main.get().getBot().removeUserSync(discordId);
-        sendMsg(commandSender, "<confirm>Vinculação removida com sucesso!");
+        Bukkit.getScheduler().runTaskAsynchronously(Main.get(), () -> {
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                LinkManager.get().syncRoles(player.getUniqueId());
+            });
+            commandSender.sendMessage("<confirm>Permissões atualizadas com sucesso!");
+        });
         return true;
     }
 
     @Override
     protected List<String> onTabComplete(CommandSender commandSender, String[] strings) {
-        return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        return List.of();
     }
 
     @Override
     public String getUsage() {
-        return "remover <player>";
+        return "update";
     }
 
     @Override
     public String getPermission() {
-        return "brpacks.discord.remover";
+        return "brpacks.discord.update";
     }
 
     @Override
     public String getDescription() {
-        return "Remove a vinculação de uma conta de Minecraft";
+        return "Atualiza as permissões do jogador";
     }
 }

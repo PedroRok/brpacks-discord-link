@@ -1,4 +1,4 @@
-package net.brpacks.discordlink.data;
+package net.brpacks.discordlink;
 
 import lombok.Getter;
 import net.brpacks.core.common.database.Database;

@@ -20,7 +20,7 @@ public class CommandVincular extends ListenerAdapter {
 
             long roleToVerify = Main.get().getMainConfig().getVerifiedRoleId();
             if (event.getMember().getRoles().stream().filter(role -> role.getIdLong() == roleToVerify).findFirst().orElse(null) != null
-                || LinkManager.get().getDatabase().isClientSync(event.getMember().getIdLong())) {
+                || LinkManager.get().isClientLinked(event.getMember().getIdLong())) {
                 event.reply(":x: Você já está vinculado a uma conta!").setEphemeral(true).queue();
                 return;
             }

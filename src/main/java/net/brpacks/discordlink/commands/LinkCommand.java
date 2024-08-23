@@ -3,8 +3,12 @@ package net.brpacks.discordlink.commands;
 import net.brpacks.core.common.commands.CommandManager;
 import net.brpacks.core.common.utils.StringUtils;
 import net.brpacks.discordlink.LinkManager;
+import net.brpacks.discordlink.Main;
 import net.brpacks.discordlink.commands.sub.InfoCmd;
+import net.brpacks.discordlink.commands.sub.ReloadCmd;
 import net.brpacks.discordlink.commands.sub.RemoverCmd;
+import net.brpacks.discordlink.commands.sub.UpdateCmd;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.Command;
@@ -18,20 +22,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LinkCommand extends CommandManager {
 
-    private final Component startMessagePart;
-    private final Component finalMessagePart;
-
+    private Component startMessagePart;
+    private Component finalMessagePart;
     public LinkCommand() {
         super("vincular", "brpacks.discord", "<gray>[<blue>DISCORD<gray>] ");
         registerSubCommand("info", new InfoCmd(this));
         registerSubCommand("remover", new RemoverCmd(this));
+        registerSubCommand("test", new UpdateCmd(this));
+        registerSubCommand("reload", new ReloadCmd(this));
+    }
 
-        // PLACEHOLDER PRO NOME DO CANAL
-        String channelName = "#vincular-minecraft";
+    private void loadMessages() {
+        TextChannel channelById = Main.get().getBot().getChannelById(Main.get().getMainConfig().getChatId());
+        String channelName = channelById == null ? "#vincular-minecraft" : "#"+channelById.getName();
 
         startMessagePart = StringUtils.formatString("\n\n<gradient:#54cffe:#ccf9ff>Vinculando sua conta do Discord ao Minecraft</gradient>\n            ")
                 .append(StringUtils.formatString("<gradient:#54cffe:#ccf9ff><u>discord.mundoalexey.com</gradient>\n")
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/brpacks"))
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, Main.get().getMainConfig().getDiscordLink()))
                         .hoverEvent(StringUtils.formatString("<gradient:#54cffe:#ccf9ff>Clique para abrir o discord")))
                 .append(StringUtils.formatString("\n<blue>Para vincular sua conta, siga os passos abaixo:" +
                                                  "\n<#54cffe> 1 <blue>- <gray>No canal <gradient:#54cffe:#ccf9ff>" +
@@ -49,10 +56,13 @@ public class LinkCommand extends CommandManager {
                 p.sendMessage(StringUtils.formatString("<negate>Você já possui um código pendente! <gray>Por favor, aguarde 5 minutos."));
                 return true;
             }
-            if (LinkManager.get().getDatabase().isPlayerSync(p.getUniqueId())) {
+            if (LinkManager.get().isLinked(p.getUniqueId())) {
                 p.sendMessage(StringUtils.formatString("<negate>Você já está vinculado a uma conta!"));
                 return true;
             }
+            // load messages
+            if (startMessagePart == null || finalMessagePart == null) loadMessages();
+
             long key = LinkManager.get().addPending(p.getUniqueId(), p.getName());
             Component code = StringUtils.formatString("<gradient:#54cffe:#ccf9ff><u>" + key + "</gradient>")
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, key + ""))

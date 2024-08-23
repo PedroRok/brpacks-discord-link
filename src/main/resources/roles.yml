@@ -1,0 +1,9 @@
+group-to-role:
+  "vip-oni": 564654038650716170
+  "vip-elite": 564654038650716170
+
+booster:
+  role-id: 564654038650716170
+  perm-list:
+    - "brpacks.discord.vip-oni"
+    - "brpacks.discord.vip-elite"
