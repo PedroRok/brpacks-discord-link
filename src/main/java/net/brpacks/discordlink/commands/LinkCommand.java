@@ -3,6 +3,8 @@ package net.brpacks.discordlink.commands;
 import net.brpacks.core.common.commands.CommandManager;
 import net.brpacks.core.common.utils.StringUtils;
 import net.brpacks.discordlink.LinkManager;
+import net.brpacks.discordlink.commands.sub.InfoCmd;
+import net.brpacks.discordlink.commands.sub.RemoverCmd;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.Command;
@@ -21,6 +23,8 @@ public class LinkCommand extends CommandManager {
 
     public LinkCommand() {
         super("vincular", "brpacks.discord", "<gray>[<blue>DISCORD<gray>] ");
+        registerSubCommand("info", new InfoCmd(this));
+        registerSubCommand("remover", new RemoverCmd(this));
 
         // PLACEHOLDER PRO NOME DO CANAL
         String channelName = "#vincular-minecraft";
@@ -42,10 +46,14 @@ public class LinkCommand extends CommandManager {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (sender instanceof Player p && (args.length == 0 || !sender.hasPermission("brpacks.mod"))) {
             if (LinkManager.get().isPending(p.getUniqueId())) {
-                p.sendMessage(StringUtils.formatString("<gray>[<red>!<gray>] <red>Você já possui um código pendente! <gray>Por favor, aguarde 5 minutos."));
+                p.sendMessage(StringUtils.formatString("<negate>Você já possui um código pendente! <gray>Por favor, aguarde 5 minutos."));
                 return true;
             }
-            long key = LinkManager.get().addPending(p.getUniqueId());
+            if (LinkManager.get().getDatabase().isPlayerSync(p.getUniqueId())) {
+                p.sendMessage(StringUtils.formatString("<negate>Você já está vinculado a uma conta!"));
+                return true;
+            }
+            long key = LinkManager.get().addPending(p.getUniqueId(), p.getName());
             Component code = StringUtils.formatString("<gradient:#54cffe:#ccf9ff><u>" + key + "</gradient>")
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, key + ""))
                     .hoverEvent(StringUtils.formatString("<gradient:#54cffe:#ccf9ff>Clique para copiar o código"));

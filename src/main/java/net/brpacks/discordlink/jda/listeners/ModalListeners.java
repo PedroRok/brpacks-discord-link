@@ -15,7 +15,7 @@ public class ModalListeners extends ListenerAdapter {
 
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if(event.getId().equals("sync:token")) {
+        if(event.getModalId().equals("sync:token")) {
             if(event.getGuild() == null) return;
             if(event.getMember() == null) return;
             ModalMapping inputTokenMapping = event.getValue("textinput:token");
@@ -37,7 +37,7 @@ public class ModalListeners extends ListenerAdapter {
                 return;
             }
 
-            Role role = Objects.requireNonNull(event.getGuild()).getRoleById(Main.get().getMainConfig().getVerifiedRoleId());
+            Role role = event.getGuild().getRoleById(Main.get().getMainConfig().getVerifiedRoleId());
             if(role == null) {
                 Main.LOGGER.error("O cargo de verificado não está configurado corretamente.");
                 event.reply("Houve um erro ao se verificar, tente novamente em outro momento")
@@ -46,6 +46,7 @@ public class ModalListeners extends ListenerAdapter {
             }
 
             // associar o membro ao banco de dados
+            LinkManager.get().confirmSync(uuid, event.getMember().getIdLong(), inputLong);
 
             event.getGuild().addRoleToMember(event.getMember(), role)
                     .queue(then -> event.reply(":white_check_mark: Você foi verificado com sucesso!").setEphemeral(true).queue());

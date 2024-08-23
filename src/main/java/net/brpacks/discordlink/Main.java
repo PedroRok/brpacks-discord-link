@@ -17,6 +17,9 @@ public final class Main extends JavaPlugin {
     private static Main instance;
     private MainConfig mainConfig;
 
+    @Getter
+    private Bot bot;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -24,7 +27,7 @@ public final class Main extends JavaPlugin {
         mainConfig.init();
         LinkManager.get();
 
-        Bot bot = new Bot();
+        bot = new Bot();
         bot.login();
 
         getServer().getPluginCommand("vincular").setExecutor(new LinkCommand());
