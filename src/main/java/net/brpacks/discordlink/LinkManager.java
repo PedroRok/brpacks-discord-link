@@ -7,6 +7,7 @@ import net.brpacks.core.common.utils.Tuple;
 import net.brpacks.discordlink.config.RolesConfig;
 import net.brpacks.discordlink.jda.Bot;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
@@ -96,11 +97,10 @@ public class LinkManager {
         if (user == null) return;
         String primaryGroup = user.getPrimaryGroup();
 
-        for (Map.Entry<String, Long> entry : rolesConfig.getGroupToRoles().entrySet()) {
-            bot.modifyPlayerRole(discordByPlayer, entry.getValue(), primaryGroup.equals(entry.getKey()));
-        }
-
         bot.getMemberById(discordByPlayer, member -> {
+            for (Map.Entry<String, Long> entry : rolesConfig.getGroupToRoles().entrySet()) {
+                bot.modifyPlayerRole(member, entry.getValue(), primaryGroup.equals(entry.getKey()));
+            }
             boolean hasRole = member.getRoles().stream().anyMatch(role -> role.getIdLong() == rolesConfig.getBoosterRole());
             modifyBoosterRole(user, hasRole);
         });
@@ -120,6 +120,23 @@ public class LinkManager {
             }
             luckPerms.getUserManager().saveUser(user);
         }
+    }
+
+    public void removeSync(long discordId) {
+        Bot bot = Main.get().getBot();
+        User user = luckPerms.getUserManager().getUser(database.getPlayerByDiscord(discordId));
+        if (user != null) {
+            modifyBoosterRole(user, false);
+        }
+        database.removeSync(discordId);
+        bot.getMemberById(discordId, member -> {
+            for (Map.Entry<String, Long> entry : rolesConfig.getGroupToRoles().entrySet()) {
+                bot.modifyPlayerRole(member, entry.getValue(), false);
+            }
+            Role roleById = member.getGuild().getRoleById(Main.get().getMainConfig().getVerifiedRoleId());
+            if (roleById == null) return;
+            member.getGuild().removeRoleFromMember(member, roleById).queue();
+        });
     }
 
     public static LinkManager get() {

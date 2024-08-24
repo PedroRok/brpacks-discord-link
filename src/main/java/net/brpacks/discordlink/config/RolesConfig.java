@@ -28,7 +28,6 @@ public class RolesConfig extends XConfig {
         groupToRoles.clear();
         for (String group : config.getSection("group-to-role").getKeys(false)) {
             groupToRoles.put(group, config.getLong("group-to-role." + group));
-            System.out.println("Group: " + group + " Role: " + config.getLong("group-to-role." + group));
         }
 
         boosterRole = config.getLong("booster.role-id");

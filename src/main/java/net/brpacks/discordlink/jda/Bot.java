@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import xyz.xenondevs.invui.gui.Gui;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Getter
@@ -43,15 +44,6 @@ public class Bot {
         Main.LOGGER.info("Bot iniciado com sucesso!");
     }
 
-
-    public void removeUserSync(long userId) {
-        getMemberById(userId, member -> {
-            Role roleById = member.getGuild().getRoleById(Main.get().getMainConfig().getVerifiedRoleId());
-            if (roleById == null) return;
-            member.getGuild().removeRoleFromMember(member, roleById).queue();
-        });
-    }
-
     public TextChannel getChannelById(long channelId) {
         for (Guild guild : jda.getGuilds()) {
             for (TextChannel textChannel : guild.getTextChannels()) {
@@ -63,29 +55,27 @@ public class Bot {
 
     public void getMemberById(long userId, Consumer<Member> consumer) {
         guild.retrieveMemberById(userId).queue(member -> {
-                if (member != null) {
-                    consumer.accept(member);
-                }
-            }, throwable -> {
-                Main.LOGGER.error("Erro ao obter o membro: " + throwable.getMessage());
-            });
+            if (member != null) {
+                consumer.accept(member);
+            }
+        }, throwable -> {
+            Main.LOGGER.error("Erro ao obter o membro: " + throwable.getMessage());
+        });
     }
 
-    public void modifyPlayerRole(long memberId, long roleId, boolean add) {
-        getMemberById(memberId, member -> {
-            if (member.getRoles().stream().anyMatch(role -> role.getIdLong() == roleId) == add) return;
-            Role roleById = guild.getRoleById(roleId);
-            if (roleById == null) return;
-            if (add) {
-                guild.addRoleToMember(member, roleById).queue();
-            } else {
-                guild.removeRoleFromMember(member, roleById).queue();
-            }
-            if (!member.getUser().hasPrivateChannel()) return;
+    public void modifyPlayerRole(Member member, long roleId, boolean add) {
+        if (member.getRoles().stream().anyMatch(role -> role.getIdLong() == roleId) == add) return;
+        Role roleById = guild.getRoleById(roleId);
+        if (roleById == null) return;
+        if (add) {
+            guild.addRoleToMember(member, roleById).queue();
+        } else {
+            guild.removeRoleFromMember(member, roleById).queue();
+        }
+        if (!member.getUser().hasPrivateChannel()) return;
 
-            member.getUser().openPrivateChannel().queue(privateChannel -> {
-                privateChannel.sendMessage(":white_check_mark: Você recebeu o cargo " + roleById.getName() + " no servidor " + guild.getName()).queue();
-            });
+        member.getUser().openPrivateChannel().queue(privateChannel -> {
+            privateChannel.sendMessage(":white_check_mark: Você recebeu o cargo " + roleById.getName() + " no servidor " + guild.getName()).queue();
         });
     }
 

@@ -30,8 +30,7 @@ public class RemoverCmd extends SubCommand {
             sendMsg(commandSender, "<error>Jogador não vinculado!");
             return true;
         }
-        LinkManager.get().getDatabase().removeSync(discordId);
-        Main.get().getBot().removeUserSync(discordId);
+        LinkManager.get().removeSync(discordId);
         sendMsg(commandSender, "<confirm>Vinculação removida com sucesso!");
         return true;
     }
