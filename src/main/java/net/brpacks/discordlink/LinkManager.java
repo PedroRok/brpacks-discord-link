@@ -68,6 +68,10 @@ public class LinkManager {
 
         Player player = Bukkit.getPlayer(uuid);
         syncRoles(uuid);
+
+        Main.get().getBot().getMemberById(userId, member -> {
+            Main.LOGGER.info("Player " + uuid + " (" + remove.two() + ")" + " linked with " + userId + " (" + member.getUser().getName() + ")");
+        });
         if (player == null) return;
         player.sendMessage(StringUtils.text("<confirm>Conta vinculada com sucesso!"));
     }

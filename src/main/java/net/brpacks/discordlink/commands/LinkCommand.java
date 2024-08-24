@@ -6,7 +6,7 @@ import net.brpacks.discordlink.LinkManager;
 import net.brpacks.discordlink.Main;
 import net.brpacks.discordlink.commands.sub.InfoCmd;
 import net.brpacks.discordlink.commands.sub.ReloadCmd;
-import net.brpacks.discordlink.commands.sub.RemoverCmd;
+import net.brpacks.discordlink.commands.sub.RemoveCmd;
 import net.brpacks.discordlink.commands.sub.UpdateCmd;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.Component;
@@ -27,7 +27,7 @@ public class LinkCommand extends CommandManager {
     public LinkCommand() {
         super("vincular", "brpacks.discord", "<gray>[<blue>DISCORD<gray>] ");
         registerSubCommand("info", new InfoCmd(this));
-        registerSubCommand("remover", new RemoverCmd(this));
+        registerSubCommand("remove", new RemoveCmd(this));
         registerSubCommand("test", new UpdateCmd(this));
         registerSubCommand("reload", new ReloadCmd(this));
     }

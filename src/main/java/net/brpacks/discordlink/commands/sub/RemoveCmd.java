@@ -3,7 +3,6 @@ package net.brpacks.discordlink.commands.sub;
 import net.brpacks.core.common.commands.CommandManager;
 import net.brpacks.core.common.commands.SubCommand;
 import net.brpacks.discordlink.LinkManager;
-import net.brpacks.discordlink.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,8 +13,8 @@ import java.util.List;
  * @author Rok, Pedro Lucas nmm. Created on 23/08/2024
  * @project BrPacksDiscordLink
  */
-public class RemoverCmd extends SubCommand {
-    public RemoverCmd(CommandManager commandManager) {
+public class RemoveCmd extends SubCommand {
+    public RemoveCmd(CommandManager commandManager) {
         super(commandManager);
     }
 
@@ -42,7 +41,7 @@ public class RemoverCmd extends SubCommand {
 
     @Override
     public String getUsage() {
-        return "remover <player>";
+        return "remove <player>";
     }
 
     @Override
